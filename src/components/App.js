@@ -19,6 +19,8 @@ class App extends Component {
     }
     this.handleFieldChange = this.handleFieldChange.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
+    this.handleSend = this.handleSend.bind(this);
   }
 
   componentDidMount() {
@@ -42,7 +44,9 @@ class App extends Component {
     outbox[idx] = outboxItem;
 
     this.setState({ outbox });
-    fetch('http://localhost:3000/outbox', createPOST(outbox))
+    fetch('http://localhost:3000/outbox', createPOST(
+      Object.assign({}, { outbox, merits: this.state.merits })
+      ));
     return;
   }
 
@@ -69,10 +73,41 @@ class App extends Component {
     return;
   }
 
+  handleSend() {
+    // check each cell of each row for validity
+      // handle errors
+
+    // log out 'sent' items
+    // remove items from state.checked && state.outbox
+  }
+
+  handleDelete() {
+    // worst case: linear time & space
+    // in many cases, much better than removing indexes in 'checked' from outbox array
+
+    let toDelete = 0; // to keep track of value in checked to compare against
+    const checked = this.state.checked.slice().sort((a, b) => a > b); // sort, could be out of order
+    const outbox = this.state.outbox.reduce((filtered, item, idx) => {
+      if (idx === checked[toDelete]) {
+        toDelete++;
+        return filtered;
+      }
+      filtered.push(item);
+      return filtered;
+    }, []);
+
+    this.setState({ outbox, checked: [] });
+    return;
+  }
+
   render() {
     console.log('state: ', this.state);
     return (
       <div className="App">
+        <div className="buttons">
+          <button className="delete" onClick={this.handleDelete}>Delete</button>
+          <button className="send" onClick={this.handleDelete}>Send</button>
+        </div>
         <Outbox
           app={this}
           outbox={this.state.outbox}
