@@ -14,11 +14,13 @@ const populateTable = (state, handleChange, handleCheck, hasError) => (
     ))
 );
 
-const Outbox = ({state, handleChange, handleCheck, hasError}) => (
+const Outbox = ({state, handleChange, handleCheck, handleCheckAll, hasError}) => (
   <table>
     <thead>
       <tr>
-        <th></th>
+        <th>
+          <input type="checkbox" onChange={(e) => handleCheckAll(e)} />
+        </th>
         <th>First</th>
         <th>Last</th>
         <th>Email</th>

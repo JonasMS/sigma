@@ -27,6 +27,7 @@ class App extends Component {
     this.handleAdd = this.handleAdd.bind(this);
     this.handleSend = this.handleSend.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleCheckAll = this.handleCheckAll.bind(this);
   }
 
   componentDidMount() {
@@ -34,7 +35,6 @@ class App extends Component {
       .then(checkStatus)
       .then(parseJSON)
       .then(data => {
-        console.log(data);
         const { merits, outbox } = data;
         const checkboxes = outbox.map(() => false);
         this.setState({merits, outbox, checkboxes});
@@ -52,7 +52,6 @@ class App extends Component {
     return inputErrors[idx] && inputErrors[idx][prop];
   }
 
-  // handle changes to values of table cells
   handleFieldChange(e, idx, prop) {
     // handle updating state.outbox
     const outboxItem = Object.assign({}, this.state.outbox[idx]);
@@ -61,14 +60,31 @@ class App extends Component {
     const outbox = this.state.outbox.slice(0);
     outbox[idx] = outboxItem;
 
-    // handle updating state.errors
+    // If row of changed field has an error, remove error
     if (this.state.inputErrors[idx]) {
-      delete this.state.inputErrors[idx];
+      const inputErrors = Object.assign({}, this.state.inputErrors);
+      delete inputErrors[idx];
+      this.setState({ inputErrors });
     }
 
     this.setState({ outbox });
     this.updateDB(outbox);
     return;
+  }
+
+  handleCheckAll(e) {
+    let checkboxes;
+    let checked;
+
+    if (e.target.checked) {
+      checkboxes = this.state.checkboxes.map(() => true);
+      checked = this.state.outbox.map((item, idx) => idx);
+      this.setState({ checkboxes, checked })
+      return;
+    }
+
+    checkboxes = this.state.checkboxes.map(() => false);
+    this.setState({ checkboxes, checked: [] });
   }
 
   // handle checking / unchecking of boxes
@@ -87,7 +103,9 @@ class App extends Component {
     }
 
      if (this.state.inputErrors[idx]) {
-      delete this.state.inputErrors[idx];
+      const inputErrors = Object.assign({}, this.state.inputErrors);
+      delete inputErrors[idx];
+      this.setState({ inputErrors });
     }
 
     // remove handle from state.checked
@@ -184,6 +202,7 @@ class App extends Component {
           state={this.state}
           handleChange={this.handleFieldChange}
           handleCheck={this.handleCheckboxChange}
+          handleCheckAll={this.handleCheckAll}
           hasError={this.hasError}
         />
       </div>
