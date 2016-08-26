@@ -1,19 +1,35 @@
 import React from 'react';
 import OutboxRow from './OutboxRow';
 
-const createRow = (app, outbox) => (
-  outbox.map(item => <OutboxRow item={item} />)
+const populateTable = (state, handleChange, handleCheck, hasError) => (
+  state.outbox.map((item, key) => (
+    <OutboxRow
+      state={state}
+      idx={key}
+      handleChange={handleChange}
+      handleCheck={handleCheck}
+      hasError={hasError}
+      key={key}
+    />
+    ))
 );
 
-const Outbox = ({app, outbox}) => (
+const Outbox = ({state, handleChange, handleCheck, handleCheckAll, hasError}) => (
   <table>
-    <tr>
-      <th>First</th>
-      <th>Last</th>
-      <th>Email</th>
-      <th>Merit</th>
-    </tr>
-    {createRow(app, outbox)}
+    <thead>
+      <tr>
+        <th>
+          <input type="checkbox" onChange={(e) => handleCheckAll(e)} />
+        </th>
+        <th>First</th>
+        <th>Last</th>
+        <th>Email</th>
+        <th>Merit</th>
+      </tr>
+    </thead>
+    <tbody>
+    {populateTable(state, handleChange, handleCheck, hasError)}
+    </tbody>
   </table>
 );
 
