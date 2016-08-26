@@ -2,11 +2,11 @@ import { updateDB } from '../modules/';
 
 export const setAll = (
   app,
-  outbox = [],
-  checkboxes = [],
-  merits = [],
-  checked = [],
-  inputErrors = {}
+  outbox = app.state.outbox,
+  checkboxes = app.state.checkboxes,
+  merits = app.state.merits,
+  checked = app.state.checked,
+  inputErrors = app.state.inputErrors,
 ) => {
   app.setState({ outbox, checkboxes, merits, checked, inputErrors });
 }
@@ -17,12 +17,16 @@ export const removeError = (app, idx) => {
   app.setState({ inputErrors });
 }
 
-export const updateOutbox = (app, outbox = [], merits = []) => {
+export const setErrors = (app, inputErrors = app.state.inputErrors) => {
+  app.setState({ inputErrors });
+}
+
+export const updateOutbox = (app, outbox = app.state.out, merits = app.state.merits) => {
   app.setState({ outbox });
   updateDB(outbox, merits);
 }
 
-export const updateCheckboxes = (app, checkboxes = [], checked = []) => {
+export const updateCheckboxes = (app, checkboxes = app.state.checkboxes, checked = app.state.checked) => {
   app.setState({ checkboxes, checked });
 }
 

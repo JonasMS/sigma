@@ -10,6 +10,7 @@ import {
 import {
   setAll,
   removeError,
+  setErrors,
   updateOutbox,
   updateCheckboxes,
   addOutboxEntry,
@@ -88,7 +89,7 @@ class App extends Component {
     }
 
     checkboxes = this.state.checkboxes.map(() => false);
-    updateCheckboxes(this, checkboxes);
+    updateCheckboxes(this, checkboxes, []);
   }
 
   // handle checking / unchecking of boxes
@@ -150,7 +151,7 @@ class App extends Component {
     }, {});
 
     if (Object.keys(inputErrors).length) {
-      this.setState({ inputErrors });
+      setErrors(this, inputErrors);
       return;
     }
 
@@ -162,7 +163,7 @@ class App extends Component {
     this.handleDelete();
   }
 
-  handleDelete() {
+  handleDelete() { // TODO: remove error
     // worst case: linear time & space
     // in many cases, much better than removing indexes in 'checked' from outbox array
 
@@ -178,8 +179,8 @@ class App extends Component {
     }, []);
 
     const checkboxes = outbox.map(() => false);
-    this.setState({ outbox, checkboxes, checked: [] });
-    this.updateDB(outbox);
+    updateOutbox(this, outbox);
+    updateCheckboxes(this, checkboxes, []);
   }
 
   render() {
