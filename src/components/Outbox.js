@@ -7,13 +7,17 @@ const createRow = (app, outbox) => (
 
 const Outbox = ({app, outbox}) => (
   <table>
-    <tr>
-      <th>First</th>
-      <th>Last</th>
-      <th>Email</th>
-      <th>Merit</th>
-    </tr>
+    <thead>
+      <tr>
+        <th>First</th>
+        <th>Last</th>
+        <th>Email</th>
+        <th>Merit</th>
+      </tr>
+    </thead>
+    <tbody>
     {createRow(app, outbox)}
+    </tbody>
   </table>
 );
 
