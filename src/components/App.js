@@ -14,6 +14,7 @@ class App extends Component {
     super();
     this.state = {
       outbox: [],
+      checkboxes: [],
       merits: [],
       checked: [],
       inputErrors: [],
@@ -35,7 +36,8 @@ class App extends Component {
       .then(data => {
         console.log(data);
         const { merits, outbox } = data;
-        this.setState({merits, outbox});
+        const checkboxes = outbox.map(() => false);
+        this.setState({merits, outbox, checkboxes});
       });
   }
 
@@ -64,10 +66,13 @@ class App extends Component {
     let targetIdx;
     let checked;
 
+    const checkboxes = this.state.checkboxes.slice();
+    checkboxes[idx] = !checkboxes[idx]; // flip value of checkbox
+
     // add handle to state.checked
-    if (e.target.checked) {
+    if (e.target.checked) { // TODO: use checkboxes instead of e.target
       checked = this.state.checked.concat(idx);
-      this.setState({ checked })
+      this.setState({ checked, checkboxes })
       return;
     }
 
@@ -75,16 +80,16 @@ class App extends Component {
     targetIdx = this.state.checked.indexOf(idx);
     if (targetIdx > -1) {
       checked = this.state.checked.slice().splice(targetIdx, 1);
-      this.setState({ checked })
+      this.setState({ checked, checkboxes })
       return;
     }
 
-    return;
+    this.setState({ checkboxes });
   }
 
   handleAdd() {
     const { outbox } = this.state;
-    this.setState({ outbox: outbox.concat({ first: "", last: "", email: "", merits: "" }) });
+    this.setState({ outbox: outbox.concat({ first: "", last: "", email: "", merit: "" }) });
   }
 
   handleSend() {
@@ -137,7 +142,8 @@ class App extends Component {
       return filtered;
     }, []);
 
-    this.setState({ outbox, checked: [] });
+    const checkboxes = outbox.map(() => false);
+    this.setState({ outbox, checkboxes, checked: [] });
     this.updateDB(outbox);
   }
 
@@ -151,8 +157,7 @@ class App extends Component {
           <button className="btn send-btn" onClick={this.handleSend}>Send</button>
         </div>
         <Outbox
-          app={this}
-          outbox={this.state.outbox}
+          state={this.state}
           handleChange={this.handleFieldChange}
           handleCheck={this.handleCheckboxChange}
         />
