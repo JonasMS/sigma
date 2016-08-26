@@ -17,6 +17,7 @@ class App extends Component {
       merits: [],
       checked: [],
     }
+    this.handleFieldChange = this.handleFieldChange.bind(this);
   }
 
   componentDidMount() {
@@ -30,11 +31,22 @@ class App extends Component {
       });
   }
 
+  handleFieldChange(e, idx, prop) {
+    // make copies of values in order to maintain immutable changes
+    const outboxItem = Object.assign({}, this.state.outbox[idx]);
+    outboxItem[prop] = e.target.value;
+
+    const outbox = this.state.outbox.slice(0);
+    outbox[idx] = outboxItem;
+
+    this.setState({outbox});
+  }
+
   render() {
     console.log('state: ', this.state);
     return (
       <div className="App">
-        <Outbox app={this} outbox={this.state.outbox} />
+        <Outbox app={this} outbox={this.state.outbox} handleChange={this.handleFieldChange}/>
       </div>
     );
   }
