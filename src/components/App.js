@@ -9,7 +9,7 @@ import {
 } from '../modules/';
 import {
   setAll,
-  removeError,
+  removeErrors,
   setErrors,
   updateOutbox,
   updateCheckboxes,
@@ -28,7 +28,6 @@ class App extends Component {
       inputErrors: {},
     }
 
-    this.updateDB = this.updateDB.bind(this);
     this.hasError = this.hasError.bind(this);
     this.handleFieldChange = this.handleFieldChange.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
@@ -49,12 +48,6 @@ class App extends Component {
       });
   }
 
-  updateDB(outbox) {
-    fetch('http://localhost:3000/outbox', createPOST(
-      Object.assign({}, { outbox, merits: this.state.merits })
-    ));
-  }
-
   hasError(idx, prop) {
     const { inputErrors } = this.state;
     return inputErrors[idx] && inputErrors[idx][prop];
@@ -70,7 +63,7 @@ class App extends Component {
 
     // If row of changed field has an error, remove error
     if (this.state.inputErrors[idx]) {
-      removeError(this, idx);
+      removeErrors(this, idx);
     }
 
     updateOutbox(this, outbox, this.state.merits);
@@ -93,31 +86,28 @@ class App extends Component {
   }
 
   // handle checking / unchecking of boxes
-  handleCheckboxChange(e, idx) {
+  handleCheckboxChange(idx) {
     let targetIdx;
     let checked;
-
     const checkboxes = this.state.checkboxes.slice();
+
     checkboxes[idx] = !checkboxes[idx]; // flip value of checkbox
 
-    // add handle to state.checked
-    if (e.target.checked) { // TODO: use checkboxes instead of e.target
+    // if checkbox is checked add idx of checkbox to state.checked
+    if (checkboxes[idx]) {
       checked = this.state.checked.concat(idx);
       updateCheckboxes(this, checkboxes, checked);
       return;
     }
 
     if (this.state.inputErrors[idx]) {
-      removeError(this, idx);
+      removeErrors(this, idx);
     }
 
-    // remove handle from state.checked
-    checked = checkboxes.reduce((allTrues, box, index) => { // TODO: think about
-      if (box) {
-        allTrues.push(index);
-      }
-      return allTrues;
-    }, []);
+    // if checkbox is un-checked, remove idx of checkbox from state.check
+    checked = this.state.checked.slice();
+    targetIdx = checked.indexOf(idx);
+    checked.splice(targetIdx, 1);
 
     updateCheckboxes(this, checkboxes, checked);
   }
@@ -163,11 +153,12 @@ class App extends Component {
     this.handleDelete();
   }
 
-  handleDelete() { // TODO: remove error
+  handleDelete() {
     // worst case: linear time & space
     // in many cases, much better than removing indexes in 'checked' from outbox array
+    // depends on common use case(s)
 
-    let toDelete = 0; // to keep track of value in checked to compare against
+    let toDelete = 0; // to keep track of value in state.checked to compare against
     const checked = this.state.checked.slice().sort((a, b) => a > b); // sort, could be out of order
     const outbox = this.state.outbox.reduce((filtered, item, idx) => {
       if (idx === checked[toDelete]) {
@@ -181,6 +172,7 @@ class App extends Component {
     const checkboxes = outbox.map(() => false);
     updateOutbox(this, outbox);
     updateCheckboxes(this, checkboxes, []);
+    removeErrors(this, checked);
   }
 
   render() {

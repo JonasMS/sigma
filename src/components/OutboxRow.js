@@ -16,7 +16,7 @@ const populateRow = (row, idx, handleChange, hasError) => (
 
 const OutboxRow = ({state, idx, handleChange, handleCheck, hasError}) => (
   <tr>
-    <td><input type="checkbox" checked={state.checkboxes[idx]} onChange={(e) => handleCheck(e, idx)} /></td>
+    <td><input type="checkbox" checked={state.checkboxes[idx]} onChange={() => handleCheck(idx)} /></td>
     {populateRow(state.outbox[idx], idx, handleChange, hasError)}
   </tr>
 );

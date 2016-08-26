@@ -11,10 +11,21 @@ export const setAll = (
   app.setState({ outbox, checkboxes, merits, checked, inputErrors });
 }
 
-export const removeError = (app, idx) => {
+export const removeErrors = (app, indexes) => {
   const inputErrors = Object.assign({}, app.state.inputErrors);
-  delete inputErrors[idx];
-  app.setState({ inputErrors });
+
+  if (Array.isArray(indexes)) {
+    indexes.forEach(idx => delete inputErrors[idx]);
+    app.setState({ inputErrors });
+    return;
+  }
+
+  if (typeof indexes === 'number' && Number.isInteger(indexes)) {
+    delete inputErrors[indexes];
+    app.setState({ inputErrors });
+    return;
+  }
+  throw new Error('indexes is not of type Array or an Integer of type Number');
 }
 
 export const setErrors = (app, inputErrors = app.state.inputErrors) => {
@@ -31,5 +42,6 @@ export const updateCheckboxes = (app, checkboxes = app.state.checkboxes, checked
 }
 
 export const addOutboxEntry = (app, entry = {}) => {
-  app.setState({ outbox: app.state.outbox.concat(entry) });
+  const { outbox, checkboxes } = app.state;
+  app.setState({ outbox: outbox.concat(entry), checkboxes: checkboxes.concat(false) });
 }
