@@ -3,7 +3,13 @@ import MeritDropdown from './MeritDropdown';
 
 const OutboxCell = ({value, idx, prop, merits, handleChange, hasError}) => (
   prop === 'merit' ?
-    <td><MeritDropdown merits={merits} value={value} rowIdx={idx} prop={prop} handleChange={handleChange}/></td>
+    <td><MeritDropdown
+      merits={merits}
+      value={value}
+      rowIdx={idx}
+      prop={prop}
+      handleChange={handleChange}
+    /></td>
   :
   <td><input
     className={hasError(idx, prop) ? 'error' : ''}

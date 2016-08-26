@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DropdownOption = ({merit, idx, handleChange}) => (
+const DropdownOption = ({merit}) => (
   <option value={merit}>{merit}</option>
 );
 
