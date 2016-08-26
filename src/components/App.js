@@ -16,11 +16,15 @@ class App extends Component {
       outbox: [],
       merits: [],
       checked: [],
+      inputErrors: [],
     }
+
+    this.updateDB = this.updateDB.bind(this);
     this.handleFieldChange = this.handleFieldChange.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
     this.handleSend = this.handleSend.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
+
   }
 
   componentDidMount() {
@@ -34,6 +38,12 @@ class App extends Component {
       });
   }
 
+  updateDB(outbox) {
+    fetch('http://localhost:3000/outbox', createPOST(
+      Object.assign({}, { outbox, merits: this.state.merits })
+    ));
+  }
+
   // handle changes to values of table cells
   handleFieldChange(e, idx, prop) {
     // make copies of values in order to maintain immutable changes
@@ -44,9 +54,7 @@ class App extends Component {
     outbox[idx] = outboxItem;
 
     this.setState({ outbox });
-    fetch('http://localhost:3000/outbox', createPOST(
-      Object.assign({}, { outbox, merits: this.state.merits })
-      ));
+    this.updateDB(outbox);
     return;
   }
 
@@ -65,7 +73,7 @@ class App extends Component {
     // remove handle from state.check
     targetIdx = this.state.checked.indexOf(idx);
     if (targetIdx > -1) {
-      checked =  this.state.checked.slice().splice(targetIdx, 1);
+      checked = this.state.checked.slice().splice(targetIdx, 1);
       this.setState({ checked })
       return;
     }
@@ -74,11 +82,39 @@ class App extends Component {
   }
 
   handleSend() {
-    // check each cell of each row for validity
+    // check each cell of each checked row for validity
+    let row;
+    let rowErrs;
+    const inputErrors = this.state.checked.reduce((errors, item) => {
+      row = this.state.outbox[item];
+
+      // return array of properties that have invalid values
+      rowErrs = Object.keys(row).reduce((propErrs, prop) => {
+        if (!row[prop].length) {
+          propErrs.push(prop);
+        }
+        return propErrs;
+      }, [])
+
+      if (rowErrs.length) {
+        errors.push({ idx: item, props: rowErrs });
+      }
+
+      return errors;
+    }, []);
+
       // handle errors
+    if (inputErrors.length) {
+      this.setState({ inputErrors });
+      return;
+    }
 
     // log out 'sent' items
-    // remove items from state.checked && state.outbox
+    this.state.checked.forEach(item => {
+      console.log('SENT ITEM: ', this.state.outbox[item]);
+    });
+
+    this.handleDelete();
   }
 
   handleDelete() {
@@ -97,7 +133,7 @@ class App extends Component {
     }, []);
 
     this.setState({ outbox, checked: [] });
-    return;
+    this.updateDB(outbox);
   }
 
   render() {
@@ -106,7 +142,7 @@ class App extends Component {
       <div className="App">
         <div className="buttons">
           <button className="delete" onClick={this.handleDelete}>Delete</button>
-          <button className="send" onClick={this.handleDelete}>Send</button>
+          <button className="send" onClick={this.handleSend}>Send</button>
         </div>
         <Outbox
           app={this}
