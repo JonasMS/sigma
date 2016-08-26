@@ -17,7 +17,7 @@ class App extends Component {
       checkboxes: [],
       merits: [],
       checked: [],
-      inputErrors: [],
+      inputErrors: {},
     }
 
     this.updateDB = this.updateDB.bind(this);
@@ -45,6 +45,14 @@ class App extends Component {
     fetch('http://localhost:3000/outbox', createPOST(
       Object.assign({}, { outbox, merits: this.state.merits })
     ));
+  }
+
+  hasErrors() {
+
+  }
+
+  hasError() {
+
   }
 
   // handle changes to values of table cells
@@ -93,35 +101,37 @@ class App extends Component {
   }
 
   handleSend() {
+    // handle errors
     // check each cell of each checked row for validity
     let row;
     let rowErrs;
+    const { outbox } = this.state;
     const inputErrors = this.state.checked.reduce((errors, item) => {
-      row = this.state.outbox[item];
+      row = outbox[item];
 
       // return array of properties that have invalid values
       rowErrs = Object.keys(row).reduce((propErrs, prop) => {
-        if (!row[prop].length) {
-          propErrs.push(prop);
+        if (!row[prop].length) { // checking length of input field value
+          propErrs[prop] = 1;
         }
         return propErrs;
-      }, [])
+      }, {})
 
-      if (rowErrs.length) {
-        errors.push({ idx: item, props: rowErrs });
+      if (Object.keys(rowErrs).length) {
+        errors[item] = rowErrs;
       }
 
       return errors;
-    }, []);
+    }, {});
 
-    if (inputErrors.length) {
+    if (Object.keys(inputErrors).length) {
       this.setState({ inputErrors });
       return;
     }
 
     // log out 'sent' items
     this.state.checked.forEach(item => {
-      console.log('SENT ITEM: ', this.state.outbox[item]);
+      console.log('SENT ITEM: ', outbox[item]);
     });
 
     this.handleDelete();
