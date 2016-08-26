@@ -22,6 +22,7 @@ class App extends Component {
     this.updateDB = this.updateDB.bind(this);
     this.handleFieldChange = this.handleFieldChange.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
     this.handleSend = this.handleSend.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
 
@@ -81,6 +82,11 @@ class App extends Component {
     return;
   }
 
+  handleAdd() {
+    const { outbox } = this.state;
+    this.setState({ outbox: outbox.concat({ first: "", last: "", email: "", merits: "" }) });
+  }
+
   handleSend() {
     // check each cell of each checked row for validity
     let row;
@@ -103,7 +109,6 @@ class App extends Component {
       return errors;
     }, []);
 
-      // handle errors
     if (inputErrors.length) {
       this.setState({ inputErrors });
       return;
@@ -141,8 +146,9 @@ class App extends Component {
     return (
       <div className="App">
         <div className="buttons">
-          <button className="delete" onClick={this.handleDelete}>Delete</button>
-          <button className="send" onClick={this.handleSend}>Send</button>
+          <button className="btn add-btn" onClick={this.handleAdd}>Add</button>
+          <button className="btn delete-btn" onClick={this.handleDelete}>Delete</button>
+          <button className="btn send-btn" onClick={this.handleSend}>Send</button>
         </div>
         <Outbox
           app={this}

@@ -17,6 +17,7 @@ const Outbox = ({outbox, handleChange, handleCheck}) => (
   <table>
     <thead>
       <tr>
+        <th></th>
         <th>First</th>
         <th>Last</th>
         <th>Email</th>
