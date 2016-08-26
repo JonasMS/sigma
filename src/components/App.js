@@ -42,6 +42,7 @@ class App extends Component {
     outbox[idx] = outboxItem;
 
     this.setState({ outbox });
+    fetch('http://localhost:3000/outbox', createPOST(outbox))
     return;
   }
 
