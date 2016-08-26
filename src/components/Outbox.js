@@ -1,11 +1,19 @@
 import React from 'react';
 import OutboxRow from './OutboxRow';
 
-const createRow = (app, outbox, handleChange) => (
-  outbox.map((item, key) => <OutboxRow app={app} idx={key} key={key} handleChange={handleChange}/>)
+const createRow = (outbox, handleChange, handleCheck) => (
+  outbox.map((item, key) => (
+    <OutboxRow
+      outbox={outbox}
+      idx={key}
+      handleChange={handleChange}
+      handleCheck={handleCheck}
+      key={key}
+    />
+    ))
 );
 
-const Outbox = ({app, outbox, handleChange}) => (
+const Outbox = ({outbox, handleChange, handleCheck}) => (
   <table>
     <thead>
       <tr>
@@ -16,7 +24,7 @@ const Outbox = ({app, outbox, handleChange}) => (
       </tr>
     </thead>
     <tbody>
-    {createRow(app, outbox, handleChange)}
+    {createRow(outbox, handleChange, handleCheck)}
     </tbody>
   </table>
 );
