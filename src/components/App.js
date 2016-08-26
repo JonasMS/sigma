@@ -27,7 +27,6 @@ class App extends Component {
     this.handleAdd = this.handleAdd.bind(this);
     this.handleSend = this.handleSend.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
-
   }
 
   componentDidMount() {
@@ -55,12 +54,17 @@ class App extends Component {
 
   // handle changes to values of table cells
   handleFieldChange(e, idx, prop) {
-    // make copies of values in order to maintain immutable changes
+    // handle updating state.outbox
     const outboxItem = Object.assign({}, this.state.outbox[idx]);
     outboxItem[prop] = e.target.value;
 
     const outbox = this.state.outbox.slice(0);
     outbox[idx] = outboxItem;
+
+    // handle updating state.errors
+    if (this.state.inputErrors[idx]) {
+      delete this.state.inputErrors[idx];
+    }
 
     this.setState({ outbox });
     this.updateDB(outbox);
@@ -82,13 +86,19 @@ class App extends Component {
       return;
     }
 
-    // remove handle from state.check
-    targetIdx = this.state.checked.indexOf(idx);
-    if (targetIdx > -1) {
-      checked = this.state.checked.slice().splice(targetIdx, 1);
-      this.setState({ checked, checkboxes })
-      return;
+     if (this.state.inputErrors[idx]) {
+      delete this.state.inputErrors[idx];
     }
+
+    // remove handle from state.checked
+      checked = checkboxes.reduce((allTrues, box, index) => { // TODO: think about
+        if (box) {
+          allTrues.push(index);
+        }
+        return allTrues;
+      }, []);
+      this.setState({ checked, checkboxes });
+      return;
 
     this.setState({ checkboxes });
   }
@@ -161,8 +171,14 @@ class App extends Component {
       <div className="App">
         <div className="buttons">
           <button className="btn add-btn" onClick={this.handleAdd}>Add</button>
-          <button className="btn delete-btn" onClick={this.handleDelete}>Delete</button>
-          <button className="btn send-btn" onClick={this.handleSend}>Send</button>
+          <button
+            className="btn delete-btn"
+            disabled={!this.state.checked.length}
+            onClick={this.handleDelete}>Delete</button>
+          <button
+            className="btn send-btn"
+            disabled={!this.state.checked.length}
+            onClick={this.handleSend}>Send</button>
         </div>
         <Outbox
           state={this.state}
