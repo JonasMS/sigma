@@ -21,6 +21,7 @@ class App extends Component {
     }
 
     this.updateDB = this.updateDB.bind(this);
+    this.hasError = this.hasError.bind(this);
     this.handleFieldChange = this.handleFieldChange.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     this.handleAdd = this.handleAdd.bind(this);
@@ -47,12 +48,9 @@ class App extends Component {
     ));
   }
 
-  hasErrors() {
-
-  }
-
-  hasError() {
-
+  hasError(idx, prop) {
+    const { inputErrors } = this.state;
+    return inputErrors[idx] && inputErrors[idx][prop];
   }
 
   // handle changes to values of table cells
@@ -170,6 +168,7 @@ class App extends Component {
           state={this.state}
           handleChange={this.handleFieldChange}
           handleCheck={this.handleCheckboxChange}
+          hasError={this.hasError}
         />
       </div>
     );
