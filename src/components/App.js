@@ -7,6 +7,13 @@ import {
   parseJSON,
   createPOST,
 } from '../modules/';
+import {
+  setAll,
+  removeError,
+  updateOutbox,
+  updateCheckboxes,
+  addOutboxEntry,
+} from '../actions/';
 import '../styles/App.scss';
 
 class App extends Component {
@@ -37,7 +44,7 @@ class App extends Component {
       .then(data => {
         const { merits, outbox } = data;
         const checkboxes = outbox.map(() => false);
-        this.setState({merits, outbox, checkboxes});
+        setAll(this, outbox, checkboxes, merits);
       });
   }
 
@@ -62,13 +69,10 @@ class App extends Component {
 
     // If row of changed field has an error, remove error
     if (this.state.inputErrors[idx]) {
-      const inputErrors = Object.assign({}, this.state.inputErrors);
-      delete inputErrors[idx];
-      this.setState({ inputErrors });
+      removeError(this, idx);
     }
 
-    this.setState({ outbox });
-    this.updateDB(outbox);
+    updateOutbox(this, outbox, this.state.merits);
     return;
   }
 
@@ -79,12 +83,12 @@ class App extends Component {
     if (e.target.checked) {
       checkboxes = this.state.checkboxes.map(() => true);
       checked = this.state.outbox.map((item, idx) => idx);
-      this.setState({ checkboxes, checked })
+      updateCheckboxes(this, checkboxes, checked);
       return;
     }
 
     checkboxes = this.state.checkboxes.map(() => false);
-    this.setState({ checkboxes, checked: [] });
+    updateCheckboxes(this, checkboxes);
   }
 
   // handle checking / unchecking of boxes
@@ -98,32 +102,27 @@ class App extends Component {
     // add handle to state.checked
     if (e.target.checked) { // TODO: use checkboxes instead of e.target
       checked = this.state.checked.concat(idx);
-      this.setState({ checked, checkboxes })
+      updateCheckboxes(this, checkboxes, checked);
       return;
     }
 
-     if (this.state.inputErrors[idx]) {
-      const inputErrors = Object.assign({}, this.state.inputErrors);
-      delete inputErrors[idx];
-      this.setState({ inputErrors });
+    if (this.state.inputErrors[idx]) {
+      removeError(this, idx);
     }
 
     // remove handle from state.checked
-      checked = checkboxes.reduce((allTrues, box, index) => { // TODO: think about
-        if (box) {
-          allTrues.push(index);
-        }
-        return allTrues;
-      }, []);
-      this.setState({ checked, checkboxes });
-      return;
+    checked = checkboxes.reduce((allTrues, box, index) => { // TODO: think about
+      if (box) {
+        allTrues.push(index);
+      }
+      return allTrues;
+    }, []);
 
-    this.setState({ checkboxes });
+    updateCheckboxes(this, checkboxes, checked);
   }
 
   handleAdd() {
-    const { outbox } = this.state;
-    this.setState({ outbox: outbox.concat({ first: "", last: "", email: "", merit: "" }) });
+    addOutboxEntry(this, { first: "", last: "", email: "", merit: "" });
   }
 
   handleSend() {
